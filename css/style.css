@@ -1,0 +1,668 @@
+/* ==========================================================================
+   1. CSS VARIABLES (:ROOT) - HỖ TRỢ DYNAMIC THEME THEO ID
+   ========================================================================== */
+:root {
+  /* Colors - Phase 1 (Dark Mode) */
+  --color-dark-bg-1: #0b0716;
+  --color-dark-bg-2: #1a102e;
+  --color-neon-pink: #ff2a6d;
+  --color-neon-glow: rgba(255, 42, 109, 0.65);
+  --color-gold: #ffd166;
+  --color-text-light: #f8f5fa;
+  --color-text-muted: #b0a3c4;
+
+  /* Colors - Phase 2 (Dynamic Theme) */
+  --color-light-bg-1: #ffdde1;
+  --color-light-bg-2: #ffecd2;
+  --color-light-bg-3: #fcb69f;
+  --color-glass-bg: rgba(255, 255, 255, 0.6);
+  --color-glass-border: rgba(255, 255, 255, 0.78);
+  --color-glass-shadow: rgba(166, 68, 93, 0.18);
+  --color-text-primary: #4a1c2d;
+  --color-text-secondary: #7a3e54;
+  --color-accent: #d92658;
+
+  /* Typography */
+  --font-script: 'Dancing Script', cursive;
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Transitions & Animations */
+  --transition-fast: 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-smooth: 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-phase: 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Layers */
+  --z-canvas: 1;
+  --z-hook: 10;
+  --z-reveal: 20;
+  --z-floating-ui: 30;
+
+  /* Dynamic JS Custom Properties */
+  --progress-ratio: 0;
+  --shake-offset: 0px;
+  --shake-rotate: 0deg;
+}
+
+/* ==========================================================================
+   2. RESET & BASE STYLES (MOBILE-FIRST)
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.app {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 1.25rem;
+  background: radial-gradient(circle at 50% 35%, var(--color-dark-bg-2) 0%, var(--color-dark-bg-1) 100%);
+  color: var(--color-text-light);
+  transition: background var(--transition-phase), color var(--transition-phase);
+}
+
+.app--phase-reveal {
+  background: linear-gradient(
+    135deg,
+    var(--color-light-bg-1) 0%,
+    var(--color-light-bg-2) 50%,
+    var(--color-light-bg-3) 100%
+  );
+  color: var(--color-text-primary);
+}
+
+/* ==========================================================================
+   3. STARFIELD CANVAS (PHASE 1 BACKGROUND)
+   ========================================================================== */
+.starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-canvas);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--transition-phase);
+}
+
+.app--phase-reveal .starfield {
+  opacity: 0;
+}
+
+/* ==========================================================================
+   4. PHASE 1: THE INTERACTIVE HOOK (BEM: .hook)
+   ========================================================================== */
+.hook {
+  position: relative;
+  z-index: var(--z-hook);
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.75rem;
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity var(--transition-phase), transform var(--transition-phase);
+}
+
+.hook--hidden {
+  opacity: 0;
+  transform: scale(0.88) translateY(-30px);
+  pointer-events: none;
+  position: absolute;
+}
+
+.hook__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hook__badge {
+  display: inline-block;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  background: rgba(255, 209, 102, 0.12);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  border-radius: 999px;
+}
+
+.hook__title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.25;
+  background: linear-gradient(90deg, #ffffff, #ffc2d4, var(--color-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hook__subtitle {
+  font-size: 0.925rem;
+  color: var(--color-text-muted);
+}
+
+/* Stage & Hộp quà */
+.hook__stage {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hook__aura {
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-neon-glow) 0%, transparent 70%);
+  opacity: calc(0.25 + var(--progress-ratio) * 0.75);
+  transform: scale(calc(0.85 + var(--progress-ratio) * 0.55));
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.hook__gift-box {
+  width: 170px;
+  height: 170px;
+  will-change: transform;
+  animation: giftFloat 3.2s ease-in-out infinite;
+}
+
+.hook__gift-box--shaking {
+  animation: giftShake 90ms ease-in-out infinite alternate;
+}
+
+.hook__gift-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Thanh Tiến Trình (Progress Bar) */
+.hook__progress {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.hook__progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.hook__progress-label {
+  color: var(--color-text-muted);
+}
+
+.hook__progress-value {
+  color: var(--color-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.hook__progress-track {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 42, 109, 0.2);
+}
+
+.hook__progress-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-neon-pink) 0%, #ff7597 55%, var(--color-gold) 100%);
+  box-shadow: 0 0 18px var(--color-neon-glow);
+  transform-origin: left center;
+  transform: scaleX(var(--progress-ratio));
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Nút Heart Button */
+.hook__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.hook__heart-btn {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--color-neon-pink) 0%, var(--color-accent) 100%);
+  box-shadow: 0 8px 28px var(--color-neon-glow), inset 0 2px 4px rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hook__heart-btn:hover {
+  transform: scale(1.06);
+}
+
+.hook__heart-btn--pulsing {
+  animation: heartPulse 260ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hook__heart-ripple {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--color-neon-pink);
+  opacity: 0.6;
+  animation: rippleWave 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.hook__heart-icon {
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+.hook__hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   5. PHASE 2: THE REVEAL & GLASSMORPHISM CARD (BEM: .reveal, .card)
+   ========================================================================== */
+.reveal {
+  position: relative;
+  z-index: var(--z-reveal);
+  width: 100%;
+  max-width: 960px;
+  display: none;
+  opacity: 0;
+  transform: translateY(35px) scale(0.96);
+  transition: opacity var(--transition-phase), transform var(--transition-phase);
+}
+
+.reveal--visible {
+  display: block;
+}
+
+.reveal--active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.reveal__audio-btn {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: var(--z-floating-ui);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 20px var(--color-glass-shadow);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: transform var(--transition-fast);
+}
+
+.reveal__audio-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Tấm Thiệp Glassmorphism - Cố định chiều cao tuyệt đối, không bị phình to */
+.card {
+  width: 100%;
+  height: 85vh;
+  max-height: 600px;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--color-glass-border);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px var(--color-glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  padding: 2rem 1.75rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Khối nội dung bên trái */
+.card__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Tiêu đề & Chữ ký đứng yên, không bị dịch chuyển */
+.card__tag,
+.card__title,
+.card__divider,
+.card__footer {
+  flex-shrink: 0;
+}
+
+/* Vùng lời chúc ở giữa: Tự động xuất hiện thanh cuộn riêng biệt */
+.card__message-box {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin: 0.75rem 0;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) transparent;
+}
+
+/* Tùy chỉnh thanh cuộn gọn gàng */
+.card__message-box::-webkit-scrollbar {
+  width: 5px;
+}
+.card__message-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+.card__message-box::-webkit-scrollbar-thumb {
+  background-color: rgba(217, 38, 88, 0.35);
+  border-radius: 10px;
+}
+
+.card__tag {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: rgba(217, 38, 88, 0.1);
+  border-radius: 999px;
+}
+
+.card__title {
+  font-family: var(--font-script);
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1.2;
+}
+
+.card__divider {
+  width: 64px;
+  height: 3px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--color-accent), transparent);
+}
+
+.card__message {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  white-space: pre-line;
+}
+
+.card__cursor {
+  display: inline-block;
+  margin-left: 2px;
+  font-weight: 700;
+  color: var(--color-accent);
+  animation: cursorBlink 0.8s steps(2, start) infinite;
+}
+
+.card__cursor--hidden {
+  display: none;
+}
+
+.card__footer {
+  padding-top: 0.5rem;
+}
+
+.card__signature {
+  font-family: var(--font-script);
+  font-size: 1.35rem;
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   6. GALLERY SECTION: IMAGE CAROUSEL (BEM: .carousel)
+   ========================================================================== */
+.card__gallery {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba(74, 28, 45, 0.16);
+  background: rgba(255, 255, 255, 0.4);
+  aspect-ratio: 4 / 5;
+}
+
+.carousel__viewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.carousel__track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--transition-smooth);
+  will-change: transform;
+}
+
+.carousel__slide {
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.carousel__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.03);
+  transition: transform 3s ease;
+}
+
+.carousel__slide--active .carousel__image {
+  transform: scale(1);
+}
+
+.carousel__caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 2.2rem 1rem 1.2rem;
+  background: linear-gradient(to top, rgba(40, 10, 22, 0.72), transparent);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.carousel__btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  z-index: 5;
+}
+
+.carousel__btn:hover {
+  background: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carousel__btn--prev {
+  left: 0.65rem;
+}
+
+.carousel__btn--next {
+  right: 0.65rem;
+}
+
+.carousel__dots {
+  position: absolute;
+  bottom: 0.65rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.4rem;
+  z-index: 5;
+}
+
+.carousel__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.carousel__dot--active {
+  background: #ffffff;
+  transform: scale(1.35);
+}
+
+/* ==========================================================================
+   7. KEYFRAME ANIMATIONS
+   ========================================================================== */
+@keyframes giftFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes giftShake {
+  0% {
+    transform: translate3d(calc(var(--shake-offset) * -1), 0, 0) rotate(calc(var(--shake-rotate) * -1));
+  }
+  100% {
+    transform: translate3d(var(--shake-offset), -4px, 0) rotate(var(--shake-rotate));
+  }
+}
+
+@keyframes heartPulse {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.24);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rippleWave {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@keyframes cursorBlink {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   8. RESPONSIVE BREAKPOINTS (TABLET & DESKTOP)
+   ========================================================================== */
+@media (min-width: 768px) {
+  .app {
+    padding: 2.5rem;
+  }
+
+  .card {
+    grid-template-columns: 1.15fr 0.85fr;
+    height: 78vh;
+    max-height: 590px;
+    padding: 2.5rem 3rem;
+    gap: 2.5rem;
+  }
+}
