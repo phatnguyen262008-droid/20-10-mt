@@ -20,7 +20,7 @@ const APP_CONFIG = {
 
   // 1.2. Cấu hình Nhạc nền (Thay bằng file .mp3 của bạn hoặc link trực tuyến)
   audio: {
-    src: './audio/nhac01.mp3', // Đường dẫn nội bộ cực kỳ an toàn
+    src: './audio/nhac.mp3', // Đường dẫn nội bộ cực kỳ an toàn
     volume: 0.65,
     },
 
